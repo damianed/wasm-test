@@ -16,7 +16,7 @@ class RenderQueue {
   render() {
     if (this.isRunningRender) return;
     this.isRunningRender = true;
-    const frameTimeMs = 33;
+    const frameTimeMs = 16;
 
     const execCall = () => {
       const fn = this.denqueue();
