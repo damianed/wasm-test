@@ -58,7 +58,6 @@ document.addEventListener("DOMContentLoaded", () =>  {
     const ctx = canvas.getContext("2d");
     const hexColorStr = "#" + color.toString(16);
     ctx.fillStyle = hexColorStr;
-    console.log(width, height);
     ctx.fillRect(startX, startY, width, height);
   };
 
@@ -110,10 +109,11 @@ document.addEventListener("DOMContentLoaded", () =>  {
   }
 
   main();
-});
 
-window.addEventListener("resize", (event) => {
-  console.log('resize');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+
+  window.addEventListener("resize", () => {
+    console.log('resize');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
 });

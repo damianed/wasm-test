@@ -121,12 +121,7 @@ internal inline int getDirectionIndex(uint32 keyCode) {
   return index;
 }
 
-// TODO: set key down to set a movement direction and start moving
-// and add keyUp event to stop
 void keyDown(uint32 keyCode) {
-  //TODO: THERE IS A BUG HERE or IN KEYUP THAT
-  //DOESN'T ADD/SUBSTRACT THE DIRECTION CORRECTLY
-  //WHEN KEY IS UP
   log("key down");
   for (int i = 0; i < player.currentKeyPressIndex; ++i) {
     if (keyCode == player.keysPressed[i]) {
@@ -140,13 +135,14 @@ void keyDown(uint32 keyCode) {
 
   int directionIndex = getDirectionIndex(keyCode);
 
-  if (directionIndex >= 0 && player.currentKeyPressIndex < sizeof(player.keysPressed) - 1) {
+  if (directionIndex >= 0 && player.currentKeyPressIndex < sizeof(player.keysPressed)) {
     Direction keyDirection = movementDirections[directionIndex];
     player.direction.xDelta += keyDirection.xDelta;
     player.direction.yDelta += keyDirection.yDelta;
 
     player.keysPressed[player.currentKeyPressIndex] = keyCode;
     ++player.currentKeyPressIndex;
+    assert((player.direction.xDelta <= 1 || player.direction.xDelta >= -1) || (player.direction.yDelta <= 1 || player.direction.yDelta >= -1))
   }
 };
 
@@ -159,10 +155,12 @@ void keyUp(uint32 keyCode) {
       player.direction.xDelta -= keyDirection.xDelta;
       player.direction.yDelta -= keyDirection.yDelta;
 
+      assert((player.direction.xDelta <= 1 || player.direction.xDelta >= -1) || (player.direction.yDelta <= 1 || player.direction.yDelta >= -1))
       // if not last item, move all items after it back a spot
       if (i != player.currentKeyPressIndex - 1) {
-        for (int keyIndex = i; keyIndex < player.currentKeyPressIndex - 2; ++keyIndex)  {
+        for (int keyIndex = i; keyIndex < player.currentKeyPressIndex - 1; ++keyIndex)  {
           player.keysPressed[keyIndex] = player.keysPressed[keyIndex + 1];
+          player.keysPressed[keyIndex + 1] = 0;
         }
       }
       --player.currentKeyPressIndex;
