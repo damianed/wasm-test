@@ -67,6 +67,8 @@ typedef struct {
   int keysPressed[4];
   int currentKeyPressIndex;
   Direction direction;
+  int width;
+  int height;
 } PlayerState;
 
 #define UP_CODE 87
@@ -174,8 +176,10 @@ int startGame() {
   log("hello world");
   Position startingPosition = {10.0f, 10.0f};
   player.pos = startingPosition;
+  player.height = 50;
+  player.width = 50;
 
-  canvas_fillRect(0x555555, player.pos.x, player.pos.y, 100, 100);
+  canvas_fillRect(0x555555, player.pos.x, player.pos.y, player.width, player.height);
 
   return 0;
 }
@@ -184,9 +188,18 @@ int updateGame() {
     int targetFrameTime = 16;
     float movementSpeed = 5.0f;
 
-    player.pos.x += (player.direction.xDelta * movementSpeed);
-    player.pos.y += (player.direction.yDelta * movementSpeed);
-    canvas_fillRect(0x555555, player.pos.x, player.pos.y, 100, 100);
+    float newPosX = player.pos.x + (player.direction.xDelta * movementSpeed);
+    float newPosY = player.pos.y + (player.direction.yDelta * movementSpeed);
+
+    //TODO: also check for canvas width and height
+    if (newPosX >= 0) {
+        player.pos.x = newPosX;
+    }
+    if (newPosY >= 0) {
+        player.pos.y = newPosY;
+    }
+
+    canvas_fillRect(0x555555, player.pos.x, player.pos.y, player.width, player.height);
 
     return 0;
 }
