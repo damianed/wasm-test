@@ -22,7 +22,6 @@ class RenderQueue {
     const execCall = () => {
       const fn = this.denqueue();
       requestAnimationFrame(fn);
-      //fn()
 
       if (this.items.length > 0) {
         const elapsed = performance.now() - startTime;
@@ -34,6 +33,13 @@ class RenderQueue {
 
     setTimeout(execCall, frameTimeMs);
   }
+}
+
+function createWorker(fn) {
+  var blob = new Blob(['self.onmessage = ', fn.toString()], { type: 'text/javascript' });
+  var url = URL.createObjectURL(blob);
+
+  return new Worker(url);
 }
 
 document.addEventListener("DOMContentLoaded", () =>  {
@@ -77,21 +83,29 @@ document.addEventListener("DOMContentLoaded", () =>  {
           console.log("Wasm consoleLog: ", output);
         },
         canvas_clear: () => renderQueue.enqueue(() => clearCanvas()),
-        canvas_fillRect: (color, startX, startY, width, height) => renderQueue.enqueue(() => fillRect(color, startX, startY, width, height)),
+        canvas_fillRect: (color, startX, startY, width, height) => fillRect(color, startX, startY, width, height),
         canvas_arc: (centerX, centerY, radius, startangle, endAngle, counterclockwise) => renderQueue.enqueue(() => arc(centerX, centerY, radius, startangle, endAngle, counterclockwise)),
+        now: () => performance.now(),
       }
     };
     const { instance: wasmInstance }  = await WebAssembly.instantiateStreaming(fetch('build/main.wasm'), importObject);
-    wasmInstance.exports.main();
 
-    document.addEventListener("keydown", (event) => {
+    wasmInstance.exports.startGame();
+    const frame = (timestamp) => {
+      wasmInstance.exports.updateGame();
+      window.requestAnimationFrame(frame);
+    }
+
+    window.requestAnimationFrame(frame);
+
+    window.addEventListener("keydown", (event) => {
       const keycode = event.keyCode;
       wasmInstance.exports.keyDown(keycode);
     });
 
-    document.addEventListener("keyup", (event) => {
+    window.addEventListener("keyup", (event) => {
       const keycode = event.keyCode;
-      wasmInstance.exports.keyDown(keycode);
+      wasmInstance.exports.keyUp(keycode);
     });
   }
 
