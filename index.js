@@ -14,6 +14,7 @@ class RenderQueue {
   }
 
   render() {
+    const startTime = performance.now();
     if (this.isRunningRender) return;
     this.isRunningRender = true;
     const frameTimeMs = 16;
@@ -24,7 +25,8 @@ class RenderQueue {
       //fn()
 
       if (this.items.length > 0) {
-        setTimeout(execCall, frameTimeMs);
+        const elapsed = performance.now() - startTime;
+        setTimeout(execCall, frameTimeMs - elapsed);
       } else {
         this.isRunningRender = false;
       }
@@ -36,6 +38,8 @@ class RenderQueue {
 
 document.addEventListener("DOMContentLoaded", () =>  {
   const canvas = document.getElementById("myCanvas");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   const renderQueue = new RenderQueue();
 
   function clearCanvas() {
@@ -48,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
     const ctx = canvas.getContext("2d");
     const hexColorStr = "#" + color.toString(16);
     ctx.fillStyle = hexColorStr;
+    console.log(width, height);
     ctx.fillRect(startX, startY, width, height);
   };
 
@@ -78,7 +83,23 @@ document.addEventListener("DOMContentLoaded", () =>  {
     };
     const { instance: wasmInstance }  = await WebAssembly.instantiateStreaming(fetch('build/main.wasm'), importObject);
     wasmInstance.exports.main();
+
+    document.addEventListener("keydown", (event) => {
+      const keycode = event.keyCode;
+      wasmInstance.exports.keyDown(keycode);
+    });
+
+    document.addEventListener("keyup", (event) => {
+      const keycode = event.keyCode;
+      wasmInstance.exports.keyDown(keycode);
+    });
   }
 
   main();
+});
+
+window.addEventListener("resize", (event) => {
+  console.log('resize');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 });
