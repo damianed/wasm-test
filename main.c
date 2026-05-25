@@ -63,7 +63,7 @@ typedef struct {
 } Direction;
 
 typedef struct {
-  Position pos;
+  Position posArr[2];
   int keysPressed[4];
   int currentKeyPressIndex;
   Direction direction;
@@ -174,32 +174,41 @@ void keyUp(uint32 keyCode) {
 
 int startGame() {
   log("hello world");
-  Position startingPosition = {10.0f, 10.0f};
-  player.pos = startingPosition;
   player.height = 50;
   player.width = 50;
+  player.posArr[0] = (Position) {10.0f + player.width, 10.0f};
+  player.posArr[1] = (Position) {10.0f, 10.0f};
 
-  canvas_fillRect(0x555555, player.pos.x, player.pos.y, player.width, player.height);
+
+  for (int i = 0; i < sizeof(player.posArr) / sizeof(player.posArr[0]); ++i) {
+      log("drawing");
+      canvas_fillRect(0x555555, player.posArr[i].x, player.posArr[i].y, player.width, player.height);
+  }
 
   return 0;
 }
 
-int updateGame() {
+int updateGame(int screenWidth, int screenHeight) {
     int targetFrameTime = 16;
     float movementSpeed = 5.0f;
 
-    float newPosX = player.pos.x + (player.direction.xDelta * movementSpeed);
-    float newPosY = player.pos.y + (player.direction.yDelta * movementSpeed);
+    float newPosX = player.posArr[0].x + (player.direction.xDelta * movementSpeed);
+    float newPosY = player.posArr[0].y + (player.direction.yDelta * movementSpeed);
 
     //TODO: also check for canvas width and height
-    if (newPosX >= 0) {
-        player.pos.x = newPosX;
+    if (newPosX >= 0 && newPosX <= screenWidth - player.width) {
+        player.posArr[1].x = player.posArr[0].x - (player.direction.xDelta ? (player.direction.xDelta > 0 ? player.width : -player.width) : 0);
+        player.posArr[0].x = newPosX;
     }
-    if (newPosY >= 0) {
-        player.pos.y = newPosY;
+    if (newPosY >= 0 && newPosY <= screenHeight - player.height) {
+        player.posArr[1].y = player.posArr[0].y - (player.direction.yDelta ? (player.direction.yDelta > 0 ? player.height : -player.height) : 0);
+        player.posArr[0].y = newPosY;
     }
 
-    canvas_fillRect(0x555555, player.pos.x, player.pos.y, player.width, player.height);
+    canvas_clear();
+    for (int i = 0; i < sizeof(player.posArr) / sizeof(player.posArr[0]); ++i) {
+        canvas_fillRect(0x555555, player.posArr[i].x, player.posArr[i].y, player.width, player.height);
+    }
 
     return 0;
 }

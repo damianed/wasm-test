@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () =>  {
   }
 
   function fillRect(color, startX, startY, width, height) {
-    clearCanvas();
     const ctx = canvas.getContext("2d");
     const hexColorStr = "#" + color.toString(16);
     ctx.fillStyle = hexColorStr;
@@ -53,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () =>  {
 
     wasmInstance.exports.startGame();
     const frame = (timestamp) => {
-      wasmInstance.exports.updateGame();
+      wasmInstance.exports.updateGame(canvas.width, canvas.height);
       window.requestAnimationFrame(frame);
     }
 
