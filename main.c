@@ -1,4 +1,5 @@
 #define assert(expression) if (!(expression)) {__builtin_trap();}
+#define arrayCount(arr) sizeof(arr) / sizeof(arr[0])
 
 #define bool32 int
 #define uint32 unsigned int
@@ -124,16 +125,16 @@ internal inline int getDirectionIndex(uint32 keyCode) {
 }
 
 void keyDown(uint32 keyCode) {
-  log("key down");
+  //log("key down");
   for (int i = 0; i < player.currentKeyPressIndex; ++i) {
     if (keyCode == player.keysPressed[i]) {
       //already pressed
-      log("already pressed");
+      //log("already pressed");
       return;
       break;
     }
   }
-  log("NOT ALREADY PRESSED");
+  //log("NOT ALREADY PRESSED");
 
   int directionIndex = getDirectionIndex(keyCode);
 
@@ -149,7 +150,7 @@ void keyDown(uint32 keyCode) {
 };
 
 void keyUp(uint32 keyCode) {
-  log("key up");
+  //log("key up");
   for (int i = 0; i < player.currentKeyPressIndex; ++i) {
     if (keyCode == player.keysPressed[i]) {
       int directionIndex = getDirectionIndex(keyCode);
@@ -169,7 +170,7 @@ void keyUp(uint32 keyCode) {
       break;
     }
   }
-  log("key up done");
+  //log("key up done");
 }
 
 int startGame() {
@@ -180,8 +181,8 @@ int startGame() {
   player.posArr[1] = (Position) {10.0f, 10.0f};
 
 
-  for (int i = 0; i < sizeof(player.posArr) / sizeof(player.posArr[0]); ++i) {
-      log("drawing");
+  for (int i = 0; i < arrayCount(player.posArr); ++i) {
+      //log("drawing");
       canvas_fillRect(0x555555, player.posArr[i].x, player.posArr[i].y, player.width, player.height);
   }
 
@@ -197,16 +198,20 @@ int updateGame(int screenWidth, int screenHeight) {
 
     //TODO: also check for canvas width and height
     if (newPosX >= 0 && newPosX <= screenWidth - player.width) {
-        player.posArr[1].x = player.posArr[0].x - (player.direction.xDelta ? (player.direction.xDelta > 0 ? player.width : -player.width) : 0);
+        for (int i = 1; i < arrayCount(player.posArr); ++i) {
+          player.posArr[i].x = player.posArr[i - 1].x - (player.direction.xDelta ? (player.direction.xDelta > 0 ? player.width : -player.width) : 0);
+        }
         player.posArr[0].x = newPosX;
     }
     if (newPosY >= 0 && newPosY <= screenHeight - player.height) {
-        player.posArr[1].y = player.posArr[0].y - (player.direction.yDelta ? (player.direction.yDelta > 0 ? player.height : -player.height) : 0);
+        for (int i = 1; i < arrayCount(player.posArr); ++i) {
+          player.posArr[i].y = player.posArr[i - 1].y - (player.direction.yDelta ? (player.direction.yDelta > 0 ? player.height : -player.height) : 0);
+        }
         player.posArr[0].y = newPosY;
     }
 
     canvas_clear();
-    for (int i = 0; i < sizeof(player.posArr) / sizeof(player.posArr[0]); ++i) {
+    for (int i = 0; i < arrayCount(player.posArr); ++i) {
         canvas_fillRect(0x555555, player.posArr[i].x, player.posArr[i].y, player.width, player.height);
     }
 
