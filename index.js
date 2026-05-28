@@ -51,8 +51,11 @@ document.addEventListener("DOMContentLoaded", () =>  {
     const { instance: wasmInstance }  = await WebAssembly.instantiateStreaming(fetch('build/main.wasm'), importObject);
 
     wasmInstance.exports.startGame();
+    let prevTimestamp = 0;
     const frame = (timestamp) => {
-      wasmInstance.exports.updateGame(canvas.width, canvas.height);
+      const deltaTime = (timestamp - prevTimestamp) / 1000;
+      prevTimestamp = timestamp;
+      wasmInstance.exports.updateGame(canvas.width, canvas.height, deltaTime);
       window.requestAnimationFrame(frame);
     }
 

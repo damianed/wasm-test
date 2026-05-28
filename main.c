@@ -189,25 +189,25 @@ int startGame() {
   return 0;
 }
 
-int updateGame(int screenWidth, int screenHeight) {
+int updateGame(int screenWidth, int screenHeight, float deltaTime) {
     int targetFrameTime = 16;
-    float movementSpeed = 5.0f;
+    float movementSpeed = 250.0f;
 
-    float newPosX = player.posArr[0].x + (player.direction.xDelta * movementSpeed);
-    float newPosY = player.posArr[0].y + (player.direction.yDelta * movementSpeed);
+    float newPosX = player.posArr[0].x + (player.direction.xDelta * (movementSpeed * deltaTime));
+    float newPosY = player.posArr[0].y + (player.direction.yDelta * (movementSpeed * deltaTime));
 
     //TODO: also check for canvas width and height
     if (newPosX >= 0 && newPosX <= screenWidth - player.width) {
+        player.posArr[0].x = newPosX;
         for (int i = 1; i < arrayCount(player.posArr); ++i) {
           player.posArr[i].x = player.posArr[i - 1].x - (player.direction.xDelta ? (player.direction.xDelta > 0 ? player.width : -player.width) : 0);
         }
-        player.posArr[0].x = newPosX;
     }
     if (newPosY >= 0 && newPosY <= screenHeight - player.height) {
+        player.posArr[0].y = newPosY;
         for (int i = 1; i < arrayCount(player.posArr); ++i) {
           player.posArr[i].y = player.posArr[i - 1].y - (player.direction.yDelta ? (player.direction.yDelta > 0 ? player.height : -player.height) : 0);
         }
-        player.posArr[0].y = newPosY;
     }
 
     canvas_clear();
